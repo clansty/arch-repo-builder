@@ -1,0 +1,21 @@
+version: "3.8"
+
+networks:
+  repo_builder:
+    external: false
+    ipam:
+      config:
+        - subnet: 172.24.0.0/24
+
+services:
+  arch-repo-builder:
+    image: ghcr.io/clansty/arch-repo-builder:latest
+    container_name: main_arch-repo-builder
+    environment:
+      REPO_NAME: qwq
+    restart: unless-stopped
+    volumes:
+      - ./test:/work
+    networks:
+      repo_builder:
+        ipv4_address: 172.24.0.6
