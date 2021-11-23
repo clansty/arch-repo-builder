@@ -21,12 +21,12 @@ const addPackage = (pkgFileName) => {
         fs.mkdirSync(archPath)
     }
 
+    // 执行添加命令
+    execSync(`repo-add -R ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${path.join(TMP_PACKAGE_STORE, pkgFileName)}`)
+
     // 将文件移动到架构目录
     const dest = path.join(archPath, pkgFileName)
     fs.renameSync(path.join(TMP_PACKAGE_STORE, pkgFileName), dest)
-
-    // 执行添加命令
-    execSync(`repo-add ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${dest}`)
 }
 
 module.exports = {addPackage}
