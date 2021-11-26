@@ -25,20 +25,14 @@ const addPackage = (pkgFileName) => {
         const exec = /^([A-Za-z0-9\-._]+)-([a-z0-9._]+)\.pkg\.tar(\.[a-z0-9]+)?$/.exec(pkgFileName)
         const archName = exec[2]
 
-        // 创建架构目录，如果不存在
-        const archPath = path.join(REPO_PATH, archName)
-        if (!fs.existsSync(archPath)) {
-            fs.mkdirSync(archPath)
+        let arches = [archName]
+        if (archName === 'any') {
+            arches = ['x86_64', 'i686', 'aarch64', 'armv7h']
         }
 
-        // 执行添加命令
-        if (fs.existsSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`)))
-            fs.unlinkSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`))
-        execSync(`repo-add -R ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${path.join(TMP_PACKAGE_STORE, pkgFileName)}`)
-
-        // 将文件移动到架构目录
-        const dest = path.join(archPath, pkgFileName)
-        fs.renameSync(path.join(TMP_PACKAGE_STORE, pkgFileName), dest)
+        for (const arch of arches) {
+            addPackageWithArch(pkgFileName, arch)
+        }
     }
     catch (e) {
         console.log(e)
@@ -49,6 +43,23 @@ const addPackage = (pkgFileName) => {
             addPackage(waitingQueue.shift())
         }
     }
+}
+
+const addPackageWithArch = (pkgFileName, archName) => {
+    // 创建架构目录，如果不存在
+    const archPath = path.join(REPO_PATH, archName)
+    if (!fs.existsSync(archPath)) {
+        fs.mkdirSync(archPath)
+    }
+
+    // 执行添加命令
+    if (fs.existsSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`)))
+        fs.unlinkSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`))
+    execSync(`repo-add -R ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${path.join(TMP_PACKAGE_STORE, pkgFileName)}`)
+
+    // 将文件移动到架构目录
+    const dest = path.join(archPath, pkgFileName)
+    fs.renameSync(path.join(TMP_PACKAGE_STORE, pkgFileName), dest)
 }
 
 const getQueue = () => {
