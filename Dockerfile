@@ -3,7 +3,7 @@ FROM archlinux:latest
 WORKDIR /app
 
 RUN echo 'Server = https://mirrors.bfsu.edu.cn/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-RUN pacman -Sy --noconfirm yarn
+RUN pacman -Syu --noconfirm yarn
 
 COPY ./ ./
 
