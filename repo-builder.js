@@ -27,11 +27,32 @@ const addPackage = (pkgFileName) => {
 
         let arches = [archName]
         if (archName === 'any') {
-            arches = ['x86_64', 'i686', 'aarch64', 'armv7h']
+            arches = ['x86_64', 'i686', 'aarch64']
         }
 
         for (const arch of arches) {
-            addPackageWithArch(pkgFileName, arch)
+            // 创建架构目录，如果不存在
+            const archPath = path.join(REPO_PATH, arch)
+            if (!fs.existsSync(archPath)) {
+                fs.mkdirSync(archPath)
+            }
+
+            // 执行添加命令
+            if (fs.existsSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`)))
+                fs.unlinkSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`))
+            execSync(`repo-add -R ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${path.join(TMP_PACKAGE_STORE, pkgFileName)}`)
+        }
+
+        if (archName === 'any') {
+            for (const arch of arches) {
+                fs.copyFileSync(path.join(TMP_PACKAGE_STORE, pkgFileName), path.join(REPO_PATH, arch, pkgFileName))
+            }
+            fs.unlinkSync(path.join(TMP_PACKAGE_STORE, pkgFileName))
+        }
+        else {
+            // 将文件移动到架构目录
+            const dest = path.join(REPO_PATH, archName, pkgFileName)
+            fs.renameSync(path.join(TMP_PACKAGE_STORE, pkgFileName), dest)
         }
     }
     catch (e) {
@@ -43,23 +64,6 @@ const addPackage = (pkgFileName) => {
             addPackage(waitingQueue.shift())
         }
     }
-}
-
-const addPackageWithArch = (pkgFileName, archName) => {
-    // 创建架构目录，如果不存在
-    const archPath = path.join(REPO_PATH, archName)
-    if (!fs.existsSync(archPath)) {
-        fs.mkdirSync(archPath)
-    }
-
-    // 执行添加命令
-    if (fs.existsSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`)))
-        fs.unlinkSync(path.join(archPath, `${REPO_NAME}.db.tar.gz.lck`))
-    execSync(`repo-add -R ${path.join(archPath, `${REPO_NAME}.db.tar.gz`)} ${path.join(TMP_PACKAGE_STORE, pkgFileName)}`)
-
-    // 将文件移动到架构目录
-    const dest = path.join(archPath, pkgFileName)
-    fs.renameSync(path.join(TMP_PACKAGE_STORE, pkgFileName), dest)
 }
 
 const getQueue = () => {
