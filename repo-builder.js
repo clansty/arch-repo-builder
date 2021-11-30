@@ -24,8 +24,8 @@ const addPackage = async (pkgFileName) => {
     workingLock = true
     try {
         // 从文件名中获取架构名称
-        //            [----1名称版本----]-[---2架构---] .pkg .tar .zst/.gz/.xz?
-        const regexExec = /^([A-Za-z0-9\-._]+)-([a-z0-9._]+)\.pkg\.tar(\.[a-z0-9]+)?$/.exec(pkgFileName)
+        //                  [----1名称版本----]-[---2架构---] .pkg .tar .zst/.gz/.xz?
+        const regexExec = /^([A-Za-z0-9\-._:]+)-([a-z0-9._]+)\.pkg\.tar(\.[a-z0-9]+)?$/.exec(pkgFileName)
         const archName = regexExec[2]
 
         let arches = [archName]
@@ -78,8 +78,8 @@ const getQueue = () => {
  */
 const packageExists = (pkgFileName) => {
     // 从文件名中获取架构名称
-    //            [----1名称版本----]-[---2架构---] .pkg .tar .zst/.gz/.xz?
-    const regexExec = /^([A-Za-z0-9\-._]+)-([a-z0-9._]+)\.pkg\.tar(\.[a-z0-9]+)?$/.exec(pkgFileName)
+    //                  [----1名称版本----]-[---2架构---] .pkg .tar .zst/.gz/.xz?
+    const regexExec = /^([A-Za-z0-9\-._:]+)-([a-z0-9._]+)\.pkg\.tar(\.[a-z0-9]+)?$/.exec(pkgFileName)
     let archName = regexExec[2]
     if (archName === 'any') {
         archName = 'x86_64'
